@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penn State Econ Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header id="top-nav">
+        <div class="nav-left">
+            <h1 class="playfair">Penn State Econ Graphs</h1>
+        </div>
+        
+        <div class="nav-right">
+            <button class="nav-btn" onclick="showGallery()">Home</button>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search modules...">
+            </div>
+        </div>
+    </header>
+
+    <main id="main">
+        <div id="welcome">
+            <h2 class="playfair section-main-title">Graph Library</h2>
+            
+            <h3 class="section-divider">ECON 102: Intro Microeconomics</h3>
+            <div class="graph-gallery" id="gallery-102"></div>
+
+            <h3 class="section-divider">ECON 104: Intro Macroeconomics</h3>
+            <div class="graph-gallery" id="gallery-104"></div>
+        </div>
+
+        <div id="graph-display" style="display:none">
+            <div id="graph-header"></div>
+            <div id="graph-content"></div>
+        </div>
+    </main>
+    <footer id="site-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span class="mono">Graph requests: 
+                    <a href="mailto:gittssaini@gmail.com" class="highlight">gittssaini@gmail.com</a>
+                </span>
+            </div>
+            <div class="footer-right">
+                <span class="mono">BY <span class="highlight">-Gitika + Krish</span></span>
+            </div>
+        </div>
+    </footer>
+    <script type="module" src="main.js"></script>
+</body>
+</html>

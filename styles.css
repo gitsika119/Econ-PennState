@@ -1,0 +1,253 @@
+/* 1. CORE VARIABLES & RESET */
+:root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2436;
+    --border: #2a3050;
+    --accent: #4fc3a1;
+    --text: #e8e4d8;
+    --text-dim: #9097b0;
+    --nav-height: 70px;
+}
+
+* { box-sizing: border-box; }
+
+body { 
+    background: var(--bg); 
+    color: var(--text); 
+    font-family: 'IBM Plex Sans', sans-serif; 
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Pushes footer to bottom */
+}
+
+/* 2. NAVIGATION & FOOTER */
+#top-nav {
+    height: var(--nav-height);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    flex-shrink: 0;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+/* --- FOOTER FIX --- */
+#site-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 15px 40px; /* Standardized padding */
+    flex-shrink: 0;
+}
+
+.footer-content {
+    max-width: 1200px; /* Matches your #main container width */
+    margin: 0 auto;    /* Centers the content area */
+    display: flex;
+    justify-content: space-between; /* Pushes children to opposite ends */
+    align-items: center;
+}
+
+#site-footer .mono {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+}
+
+/* Ensure the layout allows the footer to stay at bottom */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* 3. LAYOUT CONTAINERS */
+#main { 
+    flex: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+}
+
+.graph-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    width: 100%;
+    margin: 20px 0 50px;
+}
+
+/* 4. COMPONENTS: BOXES & CARDS */
+.graph-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, border-color 0.2s;
+    min-height: 200px;
+}
+
+.graph-box:hover { 
+    border-color: var(--accent); 
+    transform: translateY(-5px); 
+    background: var(--surface2);
+}
+
+.graph-box h4 {
+    color: var(--text);
+    margin: 10px 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+}
+
+.graph-box p {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.box-tag {
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+}
+
+.box-footer {
+    color: var(--text);
+    opacity: 0.5;
+    font-size: 0.7rem;
+    margin-top: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.graph-card { 
+    background: var(--surface2); 
+    border: 1px solid var(--border); 
+    padding: 30px; 
+    border-radius: 12px; 
+}
+
+/* 5. INTERACTIVE ELEMENTS: INPUTS & BUTTONS */
+.controls-grid { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
+    background: var(--surface); 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+input[type="number"] { 
+    background: var(--bg); 
+    border: 1px solid var(--border); 
+    color: var(--text); 
+    padding: 8px 12px; 
+    border-radius: 6px; 
+    max-width: 120px; 
+    font-family: 'IBM Plex Mono', monospace;
+    outline: none;
+}
+
+input[type="number"]:focus { border-color: var(--accent); }
+
+#searchInput {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    width: 200px;
+    outline: none;
+}
+
+.nav-btn, .back-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.nav-btn:hover, .back-btn:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+}
+
+/* 6. TYPOGRAPHY & UTILS */
+.playfair { font-family: 'Playfair Display', serif; }
+.mono { font-family: 'IBM Plex Mono', monospace; }
+
+.section-divider {
+    margin-top: 40px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.graph-header-actions {
+    display: flex;
+    justify-content: space-between; /* Pushes Back button left, Tag right */
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.course-tag-right {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.highlight {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Remove default browser spin arrows */
+input::-webkit-outer-spin-button, 
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

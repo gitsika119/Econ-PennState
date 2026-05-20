@@ -1,14 +1,41 @@
 import Plotly from 'plotly.js-dist';
 
+// ─── Mobile helpers ───────────────────────────────────────────────────────────
+const isMobile = () => window.innerWidth <= 480;
+const isTablet = () => window.innerWidth <= 768;
+
+// Plotly config — disables toolbar on all screens
+const plotConfig = { responsive: true, displayModeBar: false };
+
+// Legend: below chart on small screens, top-right on desktop
+const legendLayout = () => isMobile()
+    ? { orientation: 'h', x: 0, y: -0.22, xanchor: 'left', yanchor: 'top',
+        bgcolor: 'rgba(0,0,0,0)', bordercolor: '#2a3050', borderwidth: 1,
+        font: { size: 10 } }
+    : { bgcolor: 'rgba(0,0,0,0)', bordercolor: '#2a3050', borderwidth: 1 };
+
+// Margins: tighter on mobile to reclaim vertical space for the plot
+const marginLayout = () => isMobile()
+    ? { t: 20, r: 10, b: 100, l: 44 }   // extra bottom room for horizontal legend
+    : isTablet()
+        ? { t: 25, r: 15, b: 70, l: 52 }
+        : { t: 30, r: 20, b: 60, l: 60 };
+
+// Axis font shrinks on small screens
+const axisTitleFont = () => isMobile() ? { size: 10 } : {};
+
 // ─── Shared Plotly layout base ────────────────────────────────────────────────
 const baseLayout = (xTitle, yTitle, extras = {}) => ({
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor:  'rgba(0,0,0,0)',
-    font:   { color: '#e8e4d8', family: 'IBM Plex Sans, sans-serif' },
-    legend: { bgcolor: 'rgba(0,0,0,0)', bordercolor: '#2a3050', borderwidth: 1 },
-    xaxis:  { title: xTitle, gridcolor: '#2a3050', zerolinecolor: '#2a3050', range: [0, 120] },
-    yaxis:  { title: yTitle, gridcolor: '#2a3050', zerolinecolor: '#2a3050' },
-    margin: { t: 30, r: 20, b: 60, l: 60 },
+    font:   { color: '#e8e4d8', family: 'IBM Plex Sans, sans-serif',
+              size: isMobile() ? 10 : 12 },
+    legend: legendLayout(),
+    xaxis:  { title: { text: xTitle, font: axisTitleFont() },
+              gridcolor: '#2a3050', zerolinecolor: '#2a3050', range: [0, 120] },
+    yaxis:  { title: { text: yTitle, font: axisTitleFont() },
+              gridcolor: '#2a3050', zerolinecolor: '#2a3050' },
+    margin: marginLayout(),
     ...extras
 });
 
@@ -76,7 +103,7 @@ export const GraphLibrary = {
                     { id:'si', label:'Supply Intercept', value: state.sInt },
                     { id:'ss', label:'Supply Slope',     value: state.sSlope, step: 0.1, min: 0.01 }
                 ])}
-                <div id="plot-canvas" style="height:450px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('sd-basic', {
@@ -107,7 +134,7 @@ export const GraphLibrary = {
 
             Plotly.newPlot('plot-canvas', traces,
                 baseLayout('Quantity', 'Price', { yaxis: { ...baseLayout().yaxis, range: [0, state.dInt * 1.1] } }),
-                { responsive: true, displayModeBar: false });
+                plotConfig);
         }
     },
 
@@ -127,7 +154,7 @@ export const GraphLibrary = {
                     { id:'p2', label:'Price 2 (P₂)',    value: state.p2, min: 0 },
                     { id:'q2', label:'Quantity 2 (Q₂)', value: state.q2, min: 0 }
                 ])}
-                <div id="plot-canvas" style="height:450px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeightDual()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('elasticity', {
@@ -178,15 +205,20 @@ export const GraphLibrary = {
                     text: `PED = ${isFinite(ped) ? ped.toFixed(3) : '∞'} → <b>${label}</b>`,
                     font: { color, size: 16 }
                 },
-                grid: { rows: 1, columns: 2, pattern: 'independent' },
-                xaxis:  { title: 'Quantity', gridcolor: '#2a3050', domain: [0, 0.55] },
-                yaxis:  { title: 'Price',    gridcolor: '#2a3050' },
-                xaxis2: { gridcolor: '#2a3050', domain: [0.65, 1] },
-                yaxis2: { title: 'Revenue ($)', gridcolor: '#2a3050' },
-                margin: { t: 60, r: 20, b: 60, l: 60 }
+                grid: isMobile()
+                    ? { rows: 2, columns: 1, pattern: 'independent' }
+                    : { rows: 1, columns: 2, pattern: 'independent' },
+                xaxis:  { title: 'Quantity',    gridcolor: '#2a3050',
+                          domain: isMobile() ? [0, 1] : [0, 0.55] },
+                yaxis:  { title: 'Price',       gridcolor: '#2a3050',
+                          domain: isMobile() ? [0.55, 1] : [0, 1] },
+                xaxis2: { gridcolor: '#2a3050', domain: isMobile() ? [0, 1] : [0.65, 1] },
+                yaxis2: { title: 'Revenue ($)', gridcolor: '#2a3050',
+                          domain: isMobile() ? [0, 0.45] : [0, 1] },
+                margin: marginLayout()
             };
 
-            Plotly.newPlot('plot-canvas', traces, layout, { responsive: true, displayModeBar: false });
+            Plotly.newPlot('plot-canvas', traces, layout, plotConfig);
         }
     },
 
@@ -205,7 +237,7 @@ export const GraphLibrary = {
                     { id:'vc1', label:'VC₁ (linear)',     value: state.vc1, step: 0.5 },
                     { id:'vc2', label:'VC₂ (quadratic)',  value: state.vc2, step: 0.1, min: 0.01 }
                 ])}
-                <div id="plot-canvas" style="height:480px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('prod-costs', {
@@ -236,10 +268,10 @@ export const GraphLibrary = {
                 yaxis:  { title: 'Total Cost ($)', gridcolor: '#2a3050', side: 'left' },
                 yaxis2: { title: 'Per-Unit Cost ($)', gridcolor: '#2a3050', overlaying: 'y', side: 'right' },
                 xaxis:  { title: 'Quantity (Q)', gridcolor: '#2a3050', range: [0, 50] },
-                margin: { t: 30, r: 70, b: 60, l: 70 }
+                margin: isMobile() ? { t: 20, r: 10, b: 100, l: 44 } : { t: 30, r: 70, b: 60, l: 70 }
             };
 
-            Plotly.newPlot('plot-canvas', traces, layout, { responsive: true, displayModeBar: false });
+            Plotly.newPlot('plot-canvas', traces, layout, plotConfig);
         }
     },
 
@@ -257,7 +289,7 @@ export const GraphLibrary = {
                     { id:'vc1', label:'Firm VC₁', value: state.vc1, step: 0.5 },
                     { id:'vc2', label:'Firm VC₂', value: state.vc2, step: 0.1, min: 0.01 }
                 ])}
-                <div id="plot-canvas" style="height:480px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeightDual()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('perf-comp', {
@@ -301,20 +333,26 @@ export const GraphLibrary = {
             const layout = {
                 paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
                 font: { color: '#e8e4d8', family: 'IBM Plex Sans' },
-                grid: { rows: 1, columns: 2, pattern: 'independent', columnwidth: [0.5, 0.5] },
-                xaxis:  { title: 'Market Quantity', gridcolor: '#2a3050', domain: [0, 0.46] },
-                yaxis:  { title: 'Price',           gridcolor: '#2a3050' },
-                xaxis2: { title: 'Firm Quantity',   gridcolor: '#2a3050', domain: [0.54, 1] },
-                yaxis2: { title: 'Price / Cost',    gridcolor: '#2a3050' },
+                grid: isMobile()
+                    ? { rows: 2, columns: 1, pattern: 'independent' }
+                    : { rows: 1, columns: 2, pattern: 'independent', columnwidth: [0.5, 0.5] },
+                xaxis:  { title: 'Market Quantity', gridcolor: '#2a3050',
+                          domain: isMobile() ? [0, 1] : [0, 0.46] },
+                yaxis:  { title: 'Price',           gridcolor: '#2a3050',
+                          domain: isMobile() ? [0.55, 1] : [0, 1] },
+                xaxis2: { title: 'Firm Quantity',   gridcolor: '#2a3050',
+                          domain: isMobile() ? [0, 1] : [0.54, 1] },
+                yaxis2: { title: 'Price / Cost',    gridcolor: '#2a3050',
+                          domain: isMobile() ? [0, 0.45] : [0, 1] },
                 annotations: [
                     { text: 'Market', x: 0.23, y: 1.04, xref: 'paper', yref: 'paper', showarrow: false, font: { color: C.gray, size: 12 } },
                     { text: 'Firm',   x: 0.77, y: 1.04, xref: 'paper', yref: 'paper', showarrow: false, font: { color: C.gray, size: 12 } }
                 ],
                 legend: { bgcolor: 'rgba(0,0,0,0)' },
-                margin: { t: 40, r: 20, b: 60, l: 60 }
+                margin: marginLayout()
             };
 
-            Plotly.newPlot('plot-canvas', traces, layout, { responsive: true, displayModeBar: false });
+            Plotly.newPlot('plot-canvas', traces, layout, plotConfig);
         }
     },
 
@@ -332,7 +370,7 @@ export const GraphLibrary = {
                     { id:'vc1', label:'VC₁ (linear)',     value: state.vc1, step: 1 },
                     { id:'vc2', label:'VC₂ (quadratic)',  value: state.vc2, step: 0.1, min: 0 }
                 ])}
-                <div id="plot-canvas" style="height:480px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('monopoly', {
@@ -387,7 +425,7 @@ export const GraphLibrary = {
 
             Plotly.newPlot('plot-canvas', traces,
                 { ...baseLayout('Quantity', 'Price'), yaxis: { ...baseLayout().yaxis, range: [0, dInt * 1.1] } },
-                { responsive: true, displayModeBar: false });
+                plotConfig);
         }
     },
 
@@ -404,7 +442,7 @@ export const GraphLibrary = {
                     { id:'si', label:'Supply Intercept', value: state.sInt },
                     { id:'ss', label:'Supply Slope',     value: state.sSlope, step: 0.1, min: 0.01 }
                 ])}
-                <div id="plot-canvas" style="height:450px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('surplus', {
@@ -443,7 +481,7 @@ export const GraphLibrary = {
 
             Plotly.newPlot('plot-canvas', traces,
                 { ...baseLayout('Quantity', 'Price'), yaxis: { ...baseLayout().yaxis, range: [0, dInt * 1.1] } },
-                { responsive: true, displayModeBar: false });
+                plotConfig);
         }
     },
 
@@ -465,7 +503,7 @@ export const GraphLibrary = {
                     { id:'srS',  label:'SRAS Slope',      value: state.srasSlope, step: 0.1, min: 0.01 },
                     { id:'lras', label:'LRAS (Potential GDP)', value: state.lrasQ, min: 1 }
                 ])}
-                <div id="plot-canvas" style="height:480px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('as-ad', {
@@ -516,7 +554,7 @@ export const GraphLibrary = {
                 }] : []
             };
 
-            Plotly.newPlot('plot-canvas', traces, layout, { responsive: true, displayModeBar: false });
+            Plotly.newPlot('plot-canvas', traces, layout, plotConfig);
         }
     },
 
@@ -536,7 +574,7 @@ export const GraphLibrary = {
                     { id:'sl',    label:'Slope',               value: state.slope,   step: 0.1 },
                     { id:'shock', label:'Supply Shock (±)',    value: state.shockInf, step: 0.5 }
                 ])}
-                <div id="plot-canvas" style="height:450px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('phillips', {
@@ -569,7 +607,7 @@ export const GraphLibrary = {
                   xaxis: { title: 'Unemployment Rate (%)', gridcolor: '#2a3050', range: [0, 15] },
                   yaxis: { title: 'Inflation Rate (%)',    gridcolor: '#2a3050', range: [-4, 12] }
                 },
-                { responsive: true, displayModeBar: false });
+                plotConfig);
         }
     },
 
@@ -588,7 +626,7 @@ export const GraphLibrary = {
                     { id:'mdS', label:'MD Slope (per % rate)',  value: state.mdSlope, step: 1 },
                     { id:'ms',  label:'Money Supply (MS)',      value: state.ms,     min: 1 }
                 ])}
-                <div id="plot-canvas" style="height:450px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('money-market', {
@@ -626,7 +664,7 @@ export const GraphLibrary = {
                   xaxis: { title: 'Money Quantity ($)', gridcolor: '#2a3050', range: [0, mdInt * 1.2] },
                   yaxis: { title: 'Interest Rate (%)',  gridcolor: '#2a3050', range: [0, 20] }
                 },
-                { responsive: true, displayModeBar: false });
+                plotConfig);
         }
     },
 
@@ -644,7 +682,7 @@ export const GraphLibrary = {
                     { id:'gx', label:'Exports (X)',         value: state.X, min: 0 },
                     { id:'gm', label:'Imports (M)',         value: state.M, min: 0 }
                 ])}
-                <div id="plot-canvas" style="height:450px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('gdp-components', {
@@ -682,7 +720,7 @@ export const GraphLibrary = {
                 title: { text: `GDP = $${GDP.toLocaleString()}`, font: { color: C.eq, size: 16 } }
             };
 
-            Plotly.newPlot('plot-canvas', traces, layout, { responsive: true, displayModeBar: false });
+            Plotly.newPlot('plot-canvas', traces, layout, plotConfig);
         }
     },
 
@@ -699,7 +737,7 @@ export const GraphLibrary = {
                     { id:'dI', label:'Demand Intercept', value: state.dInt },
                     { id:'dS', label:'Demand Slope',     value: state.dSlope, step: 0.5 }
                 ])}
-                <div id="plot-canvas" style="height:450px;"></div>
+                <div id="plot-canvas" style="height:${window.plotHeight()}px;"></div>
             </div>`;
 
             const sync = () => window.rerender('loanable-funds', {
@@ -734,7 +772,7 @@ export const GraphLibrary = {
                   xaxis: { title: 'Quantity of Loanable Funds', gridcolor: '#2a3050', range: [0, 100] },
                   yaxis: { title: 'Real Interest Rate (%)', gridcolor: '#2a3050', range: [0, dInt * 1.1] }
                 },
-                { responsive: true, displayModeBar: false });
+                plotConfig);
         }
     }
 };
